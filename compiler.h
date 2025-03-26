@@ -14,6 +14,8 @@ struct compile_process {
     // Como o arquivo deve ser compilado
     int flags;
 
+    struct pos pos;
+
     struct compile_process_input_file{
         FILE* fp;
         const char* abs_path;
