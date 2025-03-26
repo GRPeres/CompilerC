@@ -2,5 +2,5 @@
 
 int lex(struct lex_process* process){
 
-    return ;
+    return 0;
 }
