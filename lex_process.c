@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 
-struct lex_process * lex_process_create(struct compile_process* compiler, struct lex_process_functions* functions, void *private){
+struct lex_process* lex_process_create(struct compile_process* compiler, struct lex_process_functions* functions, void *private){
     struct lex_process* process = calloc(1,sizeof(struct token));
 
     process->function = functions;
