@@ -1,5 +1,16 @@
 #ifndef COMPILER_H
 #define COMPILER_H
+#define NUMERIC_CASE \
+    case '0':\
+    case '1':\
+    case '2':\
+    case '3':\
+    case '4':\
+    case '5':\
+    case '6':\
+    case '7':\
+    case '8':\
+    case '9'
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +70,8 @@ struct compile_process* compile_process_create(const char* filename, const char*
 struct token{
     int type;
     int flags;
+
+    struct pos pos;//Indentifica local do token no arquivo
 
     union {
         char cval;
