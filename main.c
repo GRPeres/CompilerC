@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
-#include "helpers/vector.c"
+#include "helpers/vector.h"
 
 void test_vector_create() {
     struct vector *vec = vector_create(sizeof(int));
