@@ -5,9 +5,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+//LAB 1 - DEF
 enum{
     COMPILER_FILE_COMPILED_OK,
     COMPILER_FAILED_WITH_ERRORS
+};
+
+
+//LAB 2 - DEF
+struct pos {
+    int line;
+    int col;
+    const char* filename;
+};
+
+enum {
+    LEXICAL_ANALYSIS_ALL_OK,
+    LEXICAL_ANALYSIS_IMPUT_ERROR
+};
+
+enum {
+    TOKEN_TYPE_KEYWORD ,
+    TOKEN_TYPE_IDENTIFIER ,
+    TOKEN_TYPE_OPERATOR ,
+    TOKEN_TYPE_SYMBOL ,
+    TOKEN_TYPE_STRING ,
+    TOKEN_TYPE_COMMENT ,
+    TOKEN_TYPE_NEWLINE
 };
 
 struct compile_process {
@@ -29,26 +53,8 @@ struct compile_process* compile_process_create(const char* filename, const char*
 
 #endif
 
-struct pos {
-    int line;
-    int col;
-    const char* filename;
-};
+// BEGIN - LAB 2
 
-enum {
-    LEXICAL_ANALYSIS_ALL_OK,
-    LEXICAL_ANALYSIS_IMPUT_ERROR
-};
-
-enum {
-    TOKEN_TYPE_KEYWORD ,
-    TOKEN_TYPE_IDENTIFIER ,
-    TOKEN_TYPE_OPERATOR ,
-    TOKEN_TYPE_SYMBOL ,
-    TOKEN_TYPE_STRING ,
-    TOKEN_TYPE_COMMENT ,
-    TOKEN_TYPE_NEWLINE
-};
 
 struct token{
     int type;
@@ -103,7 +109,7 @@ char compile_process_peek_char(struct lex_process* lex_process);
 char compile_process_push_char(struct lex_process* lex_process, char c);
 
 //Funcoes do arquivo lex_process.c
-struct lex_process lex_process_create(struct compile_process* compiler, struct lex_process_functions* functions, void *private);
+struct lex_process* lex_process_create(struct compile_process* compiler, struct lex_process_functions* functions, void *private);
 void lex_process_free(struct lex_process* process);
 void* lex_process_private(struct lex_process* process);
 struct vector* lex_process_tokens(struct lex_process* process);

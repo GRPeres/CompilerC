@@ -111,17 +111,6 @@ struct token* read_next_token(){
 }
 
 int lex(struct lex_process* process){
-    process->current_expression_count = 0; 
-    process->parentheses_buffer = NULL;
-    lex_process = process;
-    process->pos.filename = process->compiler->cfile.abs_path;
 
-    struct token* token = read_next_token():
-
-    //Ler todos os tokens do arquivo de imput 
-    while (token) {
-        vector_push(process->token_vec, token);
-        token = read_next_token();
-    }
-    return LEXICAL_ANALYSIS_ALL_OK;
+    return ;
 }
