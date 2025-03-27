@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include "helpers/vector.h"
+#include "helpers/buffer.h"
+#include "compiler.h"
 
 void test_vector_create() {
     struct vector *vec = vector_create(sizeof(int));
@@ -80,13 +82,16 @@ void test_vector_peek() {
 }
 
 int main() {
-    test_vector_create();
-    test_vector_push();
-    test_vector_pop();
-    test_vector_set_peek_pointer();
-    test_vector_peek();
+    printf("Compiladores - TURMA A - GRUPO 2\n\n");
 
-    printf("Todos os testes passaram!\n");
+    int res = compile_file("./test.c", "./outtest", 0);
+    if (res == COMPILER_FILE_COMPILED_OK){
+        printf("Todos os arquivos foram compilados com sucesso!");
+    } else if (res == COMPILER_FAILED_WITH_ERRORS){
+        printf("Erro de compilacao!\n");
+    } else {
+        printf("Erro desconhecido!\n");
+    }
 
     return 0;
 }
