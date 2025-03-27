@@ -4,11 +4,7 @@
 
 
 struct lex_process* lex_process_create(struct compile_process* compiler, struct lex_process_functions* functions, void *private){
-<<<<<<< HEAD
     struct lex_process* process = calloc(1,sizeof(struct lex_process));
-=======
-    struct lex_process* process = calloc(1,sizeof(struct token));
->>>>>>> abd430ceae88bf80bee60df26d7f5f879033beed
 
     process->function = functions;
     process->token_vec = vector_create(sizeof(struct token));

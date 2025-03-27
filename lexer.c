@@ -30,7 +30,7 @@ static char nextc() {
 
 // Adicionar um caracter no arquivo.
 static void pushc(char c){
-    lex_process=>function->push_char(lex_process, c);
+    lex_process->function->push_char(lex_process, c);
 }
 
 static struct pos lex_file_position(){
@@ -39,7 +39,7 @@ static struct pos lex_file_position(){
 
 struct token* token_create(struct token* _token) {
     memcpy(&tmp_token, _token, sizeof(struct token));
-    tmp_token.pos - lex_file_position();
+    tmp_token.pos = lex_file_position();
 
     return &tmp_token;
 }
@@ -93,24 +93,37 @@ struct token* read_next_token(){
     {
     case EOF:
         // Fim do arquivo. 
-        break:
+        break;
     NUMERIC_CASE:
         token = token_make_number();
-    break:
+        break;
 
     case ' ':
     case '\t':
         token = handle_whitespace();
-    break;
+        break;
 
     default: 
-        compiler_error(lex_process->compiler, "Token invalido!\n");
+        // compiler_error(lex_process->compiler, "Token invalido!\n");
         break;
     }
     return token;
 }
 
 int lex(struct lex_process* process){
+    process -> current_expression_count = 0;
+    process -> parentheses_buffer = NULL;
+    lex_process = process;
+    process -> pos.filename = process->compiler->cfile.abs_path;
 
-    return ;
+    struct token* token = read_next_token();
+
+    //ler todos os token do arquivo do imput
+    while (token)
+    {
+        vector_push(process->token_vec,token);
+        token = read_next_token();
+    }
+    
+    return LEXICAL_ANALYSIS_ALL_OK;
 }
