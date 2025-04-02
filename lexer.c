@@ -94,12 +94,16 @@ struct token* read_next_token(){
     case EOF:
         // Fim do arquivo. 
         break;
+
     NUMERIC_CASE:
         token = token_make_number();
         break;
 
     case ' ':
     case '\t':
+        token = handle_whitespace();
+        break;
+    case '\n':
         token = handle_whitespace();
         break;
 
