@@ -85,6 +85,44 @@ struct token* token_make_number(){
     return token_make_number_for_value(read_number());
 }
 
+const char* read_string() {
+    struct buffer* buf = buffer_create();
+    char c = peekc();
+
+    nextc();
+
+    while ((c = peekc()) != '"' && c != EOF) {
+        if (c == '\\') {
+            nextc(); 
+            c = peekc();
+            if (c == EOF) break;
+        }
+        buffer_write(buf, c);
+        nextc();
+    }
+
+    if (c != '"') {
+        return NULL;
+    }
+    nextc();
+
+    buffer_write(buf, 0x00);
+    return buffer_ptr(buf);
+}
+
+struct token* token_make_string_for_value(const char* sval) {
+    return token_create(&(struct token){
+        .type = TOKEN_TYPE_STRING,
+        .sval = sval 
+    });
+}
+
+struct token* token_make_string() {
+    const char* s = read_string();
+    if (!s) return NULL;
+    return token_make_string_for_value(s);
+}
+
 //Funcao responsavel por ler o proximo token do arquivo.
 struct token* read_next_token(){
     struct token* token = NULL;
@@ -98,7 +136,9 @@ struct token* read_next_token(){
     NUMERIC_CASE:
         token = token_make_number();
         break;
-
+    case '"':
+        token = token_make_string();
+        break;
     case ' ':
     case '\t':
         token = handle_whitespace();
