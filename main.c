@@ -86,7 +86,7 @@ int main() {
 
     int res = compile_file("./test.c", "./outtest", 0);
     if (res == COMPILER_FILE_COMPILED_OK){
-        printf("Todos os arquivos foram compilados com sucesso!");
+        printf("Todos os arquivos foram compilados com sucesso!\n");
     } else if (res == COMPILER_FAILED_WITH_ERRORS){
         printf("Erro de compilacao!\n");
     } else {
