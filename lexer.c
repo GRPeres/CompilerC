@@ -9,6 +9,8 @@
         nextc(); \
     }
 
+char symbol_array[8] = {'{', '}', ':', ';', '#', '\\', ')', ']'};
+
 struct token* read_next_token();
 static struct lex_process* lex_process;
 static struct token tmp_token;
@@ -123,10 +125,47 @@ struct token* token_make_string() {
     return token_make_string_for_value(s);
 }
 
+const char* read_symbol_str() {
+    const char* sym = NULL;
+    struct buffer* buffer = buffer_create();
+    char c = peekc();
+    int bol = 0;
+    for (int i = 0; i < sizeof(symbol_array); i++)
+    {
+        if (c == symbol_array[i])
+        {
+            bol = 1;
+        }
+    }
+    printf("CHEGUEIIIIIIIIIIII");
+    LEX_GETC_IF(buffer, c, bol);
+
+    // Finalizar a string
+    buffer_write(buffer, 0x00);
+
+    printf("Token: %s\n",buffer->data);
+    //Retorna o ponteiro para o buffer.
+    return buffer_ptr(buffer);
+}
+
+const char* read_symbol(){
+    const char* s = read_symbol_str();
+    return s;
+}
+
+struct token* token_make_symbol_for_value(const char* symbol){
+    return token_create(&(struct token){.type=TOKEN_TYPE_SYMBOL, .sval=symbol});
+}
+
+struct token* token_make_symbol(){
+    return token_make_symbol_for_value(read_symbol());
+}
+
 //Funcao responsavel por ler o proximo token do arquivo.
 struct token* read_next_token(){
     struct token* token = NULL;
     char c = peekc();
+    printf("Character: %c (ASCII: %d)\n", c, c);
     switch (c)
     {
     case EOF:
@@ -136,13 +175,17 @@ struct token* read_next_token(){
     NUMERIC_CASE:
         token = token_make_number();
         break;
-    case '"':
-        token = token_make_string();
-        break;
+
     case ' ':
     case '\t':
         token = handle_whitespace();
         break;
+
+    SYMBOL_CASE:
+        printf("eu entrei juro");
+        token = token_make_symbol();
+        break;
+
     case '\n':
         token = handle_whitespace();
         break;

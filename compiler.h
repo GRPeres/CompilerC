@@ -12,6 +12,16 @@
     case '8':\
     case '9'
 
+#define SYMBOL_CASE \
+    case 0x7B: /* '{' */ \
+    case 0x7D: /* '}' */ \
+    case 0x3A: /* ':' */ \
+    case 0x3B: /* ';' */ \
+    case 0x23: /* '#' */ \
+    case 0x5C: /* '\\' */ \
+    case 0x29: /* ')' */ \
+    case 0x5D /* ']' */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -21,7 +31,6 @@ enum{
     COMPILER_FILE_COMPILED_OK,
     COMPILER_FAILED_WITH_ERRORS
 };
-
 
 //LAB 2 - DEF
 struct pos {
