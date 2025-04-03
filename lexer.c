@@ -131,17 +131,10 @@ const char* read_symbol_str() {
     const char* sym = NULL;
     struct buffer* buffer = buffer_create();
     char c = peekc();
-    int bol = 0;
     for (int i = 0; i < sizeof(symbol_array); i++)
     {
-        if (c == symbol_array[i])
-        {
-            bol = 1;
-        }
+        LEX_GETC_IF(buffer, c, c == symbol_array[i]);
     }
-    printf("CHEGUEIIIIIIIIIIII");
-    LEX_GETC_IF(buffer, c, bol);
-
     // Finalizar a string
     buffer_write(buffer, 0x00);
 
