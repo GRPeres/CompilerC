@@ -170,6 +170,10 @@ struct token* read_next_token(){
     printf("Character: %c (ASCII: %d)\n", c, c);
     switch (c)
     {
+    SYMBOL_CASE:
+        token = token_make_symbol();
+        break;
+
     case EOF:
         // Fim do arquivo. 
         break;
@@ -181,11 +185,6 @@ struct token* read_next_token(){
     case ' ':
     case '\t':
         token = handle_whitespace();
-        break;
-
-    SYMBOL_CASE:
-        printf("eu entrei juro");
-        token = token_make_symbol();
         break;
 
     case '"':
