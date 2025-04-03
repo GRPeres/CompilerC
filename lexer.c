@@ -186,6 +186,10 @@ struct token* read_next_token(){
         token = token_make_symbol();
         break;
 
+    case '"':
+        token = token_make_string();
+        break;
+
     case '\n':
         token = handle_whitespace();
         break;
