@@ -88,7 +88,7 @@ struct token* token_make_number(){
 }
 
 const char* read_string() {
-    struct buffer* buf = buffer_create();
+    struct buffer* buffer = buffer_create();
     char c = peekc();
 
     nextc();
@@ -99,7 +99,7 @@ const char* read_string() {
             c = peekc();
             if (c == EOF) break;
         }
-        buffer_write(buf, c);
+        buffer_write(buffer, c);
         nextc();
     }
 
@@ -108,8 +108,10 @@ const char* read_string() {
     }
     nextc();
 
-    buffer_write(buf, 0x00);
-    return buffer_ptr(buf);
+    buffer_write(buffer, 0x00);
+    
+    printf("Token: %s\n",buffer->data);
+    return buffer_ptr(buffer);
 }
 
 struct token* token_make_string_for_value(const char* sval) {
