@@ -184,6 +184,7 @@ struct token* read_next_token(){
         token = token_make_string();
         break;
 
+
     case '\n':
         token = token_create(&(struct token){.type=TOKEN_TYPE_NEWLINE});
         printf("Token: New Line \n");
