@@ -45,14 +45,14 @@ enum {
 };
 
 enum {
-    TOKEN_TYPE_KEYWORD ,
-    TOKEN_TYPE_NUMBER ,
-    TOKEN_TYPE_IDENTIFIER ,
-    TOKEN_TYPE_OPERATOR ,
-    TOKEN_TYPE_SYMBOL ,
-    TOKEN_TYPE_STRING ,
-    TOKEN_TYPE_COMMENT ,
-    TOKEN_TYPE_NEWLINE
+    TOKEN_TYPE_KEYWORD , // Ribeiro
+    TOKEN_TYPE_NUMBER , // Feito
+    TOKEN_TYPE_IDENTIFIER , // Peres
+    TOKEN_TYPE_OPERATOR , // Mousinho
+    TOKEN_TYPE_SYMBOL , // Feito
+    TOKEN_TYPE_STRING , // Feito
+    TOKEN_TYPE_COMMENT , // Gabriela
+    TOKEN_TYPE_NEWLINE //Feito
 };
 
 struct compile_process {
