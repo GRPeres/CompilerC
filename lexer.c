@@ -105,7 +105,6 @@ static struct token* make_identifier_or_keyword()
     LEX_GETC_IF(buffer, c, (c>= 'a' && c<='z') || (c>= 'A' && c<='Z') || (c>= '0' && c<='9') || c == '_')
 
     buffer_write(buffer, 0x00);
-    printf("Token: %s\n", buffer->data);
 
     if (is_keyword(buffer_ptr(buffer))) {
         return token_create(&(struct token){.type=TOKEN_TYPE_KEYWORD,.sval=buffer_ptr(buffer)});
@@ -134,7 +133,6 @@ const char* read_number_str() {
     // Finalizar a string
     buffer_write(buffer, 0x00);
 
-    printf("Token: %s\n",buffer->data);
     //Retorna o ponteiro para o buffer.
     return buffer_ptr(buffer);
 }
@@ -175,7 +173,6 @@ const char* read_string() {
 
     buffer_write(buffer, 0x00);
     
-    printf("Token: %s\n",buffer->data);
     return buffer_ptr(buffer);
 }
 
@@ -203,7 +200,6 @@ const char* read_symbol_str() {
     // Finalizar a string
     buffer_write(buffer, 0x00);
 
-    printf("Token: %s\n",buffer->data);
     //Retorna o ponteiro para o buffer.
     return buffer_ptr(buffer);
 }
@@ -221,11 +217,50 @@ struct token* token_make_symbol(){
     return token_make_symbol_for_value(read_symbol());
 }
 
+void print_token_list(struct lex_process *process){
+    struct token *token = NULL;     
+
+    for (int i = 0; i < process->token_vec->count; i++)
+    {
+        token = vector_at(process-> token_vec,i);
+
+        switch (token->type) {
+            case TOKEN_TYPE_IDENTIFIER:
+                printf("IDENT: %s\n", token->sval);
+                break;
+            case TOKEN_TYPE_KEYWORD:
+                printf("KEYWD: %s\n", token->sval);
+                break;
+            case TOKEN_TYPE_STRING:
+                printf("STRNG: \"%s\"\n", token->sval);
+                break;
+            case TOKEN_TYPE_NUMBER:
+                printf("NUMBR: %lld\n", token->llnum);
+                break;
+            case TOKEN_TYPE_SYMBOL:
+                printf("SYMBL: %c\n", token->cval);
+                break;
+            case TOKEN_TYPE_NEWLINE:
+                printf("NEWLN\n");
+                break;
+            case TOKEN_TYPE_OPERATOR:
+                printf("OPER: %s\n", token->sval);
+                break;
+            case TOKEN_TYPE_COMMENT:
+                printf("CMNT:\n");
+                break;
+            default:
+                break;
+        }
+    }
+    
+}
+
 //Funcao responsavel por ler o proximo token do arquivo.
 struct token* read_next_token(){
     struct token* token = NULL;
     char c = peekc();
-    printf("Character: %c (ASCII: %d)\n", c, c);
+    //printf("Character: %c (ASCII: %d)\n", c, c);
     switch (c)
     {
     case EOF:
@@ -240,7 +275,6 @@ struct token* read_next_token(){
         token = token_make_symbol();
         break;
 
-
     case '"':
         token = token_make_string();
         break;
@@ -250,7 +284,6 @@ struct token* read_next_token(){
     case ' ':
     case '\n':
         token = token_create(&(struct token){.type=TOKEN_TYPE_NEWLINE});
-        printf("Token: New Line \n");
         nextc();
         break;
     default: 
@@ -278,6 +311,6 @@ int lex(struct lex_process* process){
         vector_push(process->token_vec,token);
         token = read_next_token();
     }
-    
+    print_token_list(process);
     return LEXICAL_ANALYSIS_ALL_OK;
 }
