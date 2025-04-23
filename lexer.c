@@ -1,7 +1,45 @@
 #include "compiler.h"
-#include <string.h>
 #include "helpers/vector.h"
 #include "helpers/buffer.h"
+
+#include <string.h>
+#include <ctype.h>
+
+#define S_EQ(a, b) (strcmp((a), (b)) == 0)
+
+bool is_keyword(const char* str) {
+    return S_EQ(str, "unsigned") ||
+           S_EQ(str, "signed") ||
+           S_EQ(str, "char") ||
+           S_EQ(str, "short") ||
+           S_EQ(str, "int") ||
+           S_EQ(str, "long") ||
+           S_EQ(str, "float") ||
+           S_EQ(str, "double") ||
+           S_EQ(str, "void") ||
+           S_EQ(str, "struct") ||
+           S_EQ(str, "union") ||
+           S_EQ(str, "static") ||
+           S_EQ(str, "__ignore_typecheck") ||
+           S_EQ(str, "return") ||
+           S_EQ(str, "include") ||
+           S_EQ(str, "sizeof") ||
+           S_EQ(str, "if") ||
+           S_EQ(str, "else") ||
+           S_EQ(str, "while") ||
+           S_EQ(str, "for") ||
+           S_EQ(str, "do") ||
+           S_EQ(str, "break") ||
+           S_EQ(str, "continue") ||
+           S_EQ(str, "switch") ||
+           S_EQ(str, "case") ||
+           S_EQ(str, "default") ||
+           S_EQ(str, "goto") ||
+           S_EQ(str, "typedef") ||
+           S_EQ(str, "const") ||
+           S_EQ(str, "extern") ||
+           S_EQ(str, "restrict");
+}
 
 #define LEX_GETC_IF(buffer, c, exp) \
     for (c = peekc(); exp; c = peekc()){ \
@@ -58,6 +96,33 @@ static struct token* handle_whitespace() {
 
     nextc();
     return read_next_token();
+}
+
+static struct token* make_identifier_or_keyword()
+{
+    struct buffer* buffer = buffer_create();
+    char c;
+    LEX_GETC_IF(buffer, c, (c>= 'a' && c<='z') || (c>= 'A' && c<='Z') || (c>= '0' && c<='9') || c == '_')
+
+    buffer_write(buffer, 0x00);
+    printf("Token: %s\n", buffer->data);
+
+    if (is_keyword(buffer_ptr(buffer))) {
+        return token_create(&(struct token){.type=TOKEN_TYPE_KEYWORD,.sval=buffer_ptr(buffer)});
+    }
+
+    return token_create(&(struct token){.type=TOKEN_TYPE_IDENTIFIER,.sval=buffer_ptr(buffer)});
+}
+
+struct token* read_special_token()
+{
+    char c = peekc();
+    if (isalpha(c) || c == 'c')
+    {
+        return make_identifier_or_keyword();
+    }
+    
+    return NULL;
 }
 
 const char* read_number_str() {
@@ -163,10 +228,6 @@ struct token* read_next_token(){
     printf("Character: %c (ASCII: %d)\n", c, c);
     switch (c)
     {
-    SYMBOL_CASE:
-        token = token_make_symbol();
-        break;
-
     case EOF:
         // Fim do arquivo. 
         break;
@@ -175,24 +236,29 @@ struct token* read_next_token(){
         token = token_make_number();
         break;
 
-    case ' ':
-    case '\t':
-        token = handle_whitespace();
+    SYMBOL_CASE:
+        token = token_make_symbol();
         break;
+
 
     case '"':
         token = token_make_string();
         break;
-
-
+    case '\t':
+        token = handle_whitespace();
+        break;
+    case ' ':
     case '\n':
         token = token_create(&(struct token){.type=TOKEN_TYPE_NEWLINE});
         printf("Token: New Line \n");
         nextc();
         break;
-    
     default: 
-        // compiler_error(lex_process->compiler, "Token invalido!\n");
+        token =read_special_token();
+        if (!token)
+        {
+            compiler_error(lex_process->compiler, "Token invalido!\n");
+        }
         break;
     }
     return token;

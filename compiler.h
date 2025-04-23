@@ -140,3 +140,6 @@ struct vector* lex_process_tokens(struct lex_process* process);
 //Funcoes do arquivo lexer.c
 int lex(struct lex_process* process);
 
+// Error handling functions
+void compiler_error(struct compile_process* compiler, const char* msg, ...);
+void compiler_warning(struct compile_process* compiler, const char* msg, ...);
