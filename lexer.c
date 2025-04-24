@@ -337,7 +337,9 @@ struct token* read_next_token(){
     SYMBOL_CASE:
         token = token_make_symbol();
         break;
-
+    OPERATOR_CASE:
+        token = token_make_operator_or_string();
+        break;
 
     case '"':
         token = token_make_string();
