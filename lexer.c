@@ -217,6 +217,69 @@ struct token* token_make_symbol(){
     return token_make_symbol_for_value(read_symbol());
 }
 
+int token_is_keyword(struct token* token, const char* keyword) {
+    return strcmp(token -> sval, keyword) == 0;
+}
+
+static void lex_new_expression() {
+    lex_process->current_expression_count++;
+    if (lex_process->current_expression_count == 1) {
+        lex_process->parentheses_buffer = buffer_create();
+    }
+}
+
+int is_operator_char(char c) {
+    switch (c) {
+        OPERATOR_CASE:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+char* read_op() {
+    char op[2] = {0}; // Temporary buffer
+    int len = 0;
+
+    char current = nextc();
+    op[len++] = current;
+
+    while (len < 2 - 1) {
+        char next = peekc();
+
+        if (is_operator_char(next)) {
+            op[len++] = nextc();
+        } else {
+            break;
+        }
+    }
+
+    op[len] = '\0';
+
+    // Copy to heap and return (caller should free)
+    char* result = malloc(len + 1);
+    strcpy(result, op);
+    return result;
+}
+
+static struct token *token_make_operator_or_string(){
+    char op = peekc();
+    // tratar o caso do #include <abc.h>
+    if (op == '<') {
+        struct token* last_token = lexer_last_token();
+        if (token_is_keyword(last_token, "include")) {
+            return token_make_string('<', '>');
+        }
+    }
+
+    struct token* token = token_create(&(struct token){.type = TOKEN_TYPE_STRING,.sval=read_op()});
+    if (op == '(') {
+        lex_new_expression();
+    }
+
+    return token;
+}
+
 void print_token_list(struct lex_process *process){
     struct token *token = NULL;     
 
@@ -274,6 +337,7 @@ struct token* read_next_token(){
     SYMBOL_CASE:
         token = token_make_symbol();
         break;
+
 
     case '"':
         token = token_make_string();

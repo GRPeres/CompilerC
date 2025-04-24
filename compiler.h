@@ -22,6 +22,25 @@
     case 0x29: /* ')' */ \
     case 0x5D /* ']' */
 
+#define OPERATOR_CASE \
+    case '+':\
+    case '-':\
+    case '*':\
+    case '>':\
+    case '<':\
+    case '^':\
+    case '%':\
+    case '!':\
+    case '=':\
+    case '~':\
+    case '|':\
+    case '&':\
+    case '(':\
+    case '[':\
+    case ',':\
+    case '.':\
+    case '?'
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
