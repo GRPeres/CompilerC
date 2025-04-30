@@ -251,60 +251,6 @@ struct token* token_make_symbol(){
     return token_make_symbol_for_value(read_symbol());
 }
 
-struct token* token_make_one_line_comment(){
-    struct buffer* buffer = buffer_create();
-    char c = 0;
-    LEX_GETC_IF(buffer, c, c != '\n' && c != EOF);
-
-    return token_create(&(struct token){.type=TOKEN_TYPE_COMMENT,.sval=buffer_ptr(buffer)});
-}
-
-struct token* token_make_multiline_comment(){
-    struct buffer* buffer = buffer_create();
-    char c = 0;
-    while(1) {
-        LEX_GETC_IF(buffer, c, c != '*' && c != EOF);
-        
-        if (c == EOF) {
-            compiler_error(lex_process->compiler, "0 comentario não foi fechado!\n");
-            buffer_free(buffer);
-            return NULL;
-        } else if (c == '*') {
-            nextc(); //Pula para o proximo caracter do arquivo.
-
-            
-            if (peekc() == '/') {
-                buffer_pop(buffer); // Remove o '*' do buffer.
-                nextc(); // Pula o '/'.
-                nextc();
-                break;
-            }
-            buffer_write(buffer, '*'); // Adiciona o '*' no buffer.
-        }
-    }
-    
-    return token_create(&(struct token){.type=TOKEN_TYPE_COMMENT,.sval=buffer_ptr(buffer)});
-}
-struct token* handle_comment(){
-    char c = peekc();
-    if (c == '/') {
-        nextc(); // Pula o '/'.
-        if (peekc() == '/') {
-            nextc(); // Pula o '/'.
-            return token_make_one_line_comment();
-        } else if (peekc() == '*') {
-            nextc(); // Pula o '*'.
-            return token_make_multiline_comment();
-        }
-
-        pushc('/'); // Se não for um comentario, adiciona o '/' de volta.
-        return token_make_operator_or_string();
-    
-    }
-
-    return NULL;
-}
-
 
 int token_is_keyword(struct token* token, const char* keyword) {
     return strcmp(token -> sval, keyword) == 0;
@@ -367,6 +313,61 @@ static struct token *token_make_operator_or_string(){
     }
 
     return token;
+}
+
+
+struct token* token_make_one_line_comment(){
+    struct buffer* buffer = buffer_create();
+    char c = 0;
+    LEX_GETC_IF(buffer, c, c != '\n' && c != EOF);
+
+    return token_create(&(struct token){.type=TOKEN_TYPE_COMMENT,.sval=buffer_ptr(buffer)});
+}
+
+struct token* token_make_multiline_comment(){
+    struct buffer* buffer = buffer_create();
+    char c = 0;
+    while(1) {
+        LEX_GETC_IF(buffer, c, c != '*' && c != EOF);
+        
+        if (c == EOF) {
+            compiler_error(lex_process->compiler, "0 comentario não foi fechado!\n");
+            buffer_free(buffer);
+            return NULL;
+        } else if (c == '*') {
+            nextc();
+
+            
+            if (peekc() == '/') {
+                buffer_ptr(buffer); 
+                nextc(); 
+                nextc();
+                break;
+            }
+            buffer_write(buffer, '*'); 
+        }
+    }
+    
+    return token_create(&(struct token){.type=TOKEN_TYPE_COMMENT,.sval=buffer_ptr(buffer)});
+}
+struct token* handle_comment(){
+    char c = peekc();
+    if (c == '/') {
+        nextc(); // Pula o '/'.
+        if (peekc() == '/') {
+            nextc(); // Pula o '/'.
+            return token_make_one_line_comment();
+        } else if (peekc() == '*') {
+            nextc(); // Pula o '*'.
+            return token_make_multiline_comment();
+        }
+
+        pushc('/'); // Se não for um comentario, adiciona o '/' de volta.
+        return token_make_operator_or_string();
+    
+    }
+
+    return NULL;
 }
 
 void print_token_list(struct lex_process *process){
