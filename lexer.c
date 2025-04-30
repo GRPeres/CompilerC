@@ -2,6 +2,7 @@
 #include "helpers/vector.h"
 #include "helpers/buffer.h"
 
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -137,9 +138,42 @@ const char* read_number_str() {
     return buffer_ptr(buffer);
 }
 
-unsigned long long read_number(){
-    const char* s = read_number_str();
-    return atoll(s);
+static bool is_valid_number_char(char c) {
+    return isdigit(c) || 
+           (c >= 'a' && c <= 'f') || 
+           (c >= 'A' && c <= 'F') ||
+           (c == 'x' || c == 'X' || c == 'b' || c == 'B');
+}
+
+static unsigned long long parse_binary_manually(const char *str) {
+    unsigned long long value = 0;
+    while (*str == '0' || *str == '1') {
+        value = (value << 1) | (*str - '0');
+        str++;
+    }
+    return value;
+}
+
+static unsigned long long read_number() {
+    char num_buf[128];
+    size_t i = 0;
+
+    while (is_valid_number_char(peekc())) {
+        if (i + 1 >= sizeof(num_buf)) break;
+        num_buf[i++] = nextc();
+    }
+    num_buf[i] = '\0';
+
+    if (strncmp(num_buf, "0B", 2) == 0 || strncmp(num_buf, "0b", 2) == 0) {
+        return parse_binary_manually(num_buf + 2); // Skip "0b"
+    }
+
+    int base = 10;
+    if (strncmp(num_buf, "X", 2) == 0 || strncmp(num_buf, "0x", 2) == 0) {
+        base = 16;
+    }
+
+    return strtoull(num_buf, NULL, base);
 }
 
 struct token* token_make_number_for_value(unsigned long number){

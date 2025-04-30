@@ -1,4 +1,1 @@
-"Hello World!" 1234
-if bobo = ca = boboca
-
-"is this line new?"
+0123 0x1ABC 0b01100111011101101
