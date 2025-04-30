@@ -74,6 +74,66 @@ enum {
     TOKEN_TYPE_NEWLINE //Feito
 };
 
+enum{
+NODE_TYPE_EXPRESSION, 
+NODE_TYPE_EXPRESSION_PARENTHESES, 
+NODE_TYPE_NUMBER, 
+NODE_TYPE_IDENTIFIER,
+NODE_TYPE_STRING, 
+NODE_TYPE_VARIABLE,
+NODE_TYPE_VARIABLE_LIST,
+NODE_TYPE_FUNCTION ,
+NODE_TYPE_BODY, 
+NODE_TYPE_STATEMENT_RETURN,
+NODE_TYPE_STATEMENT_IF,
+NODE_TYPE_STATEMENT_ELSE, 
+NODE_TYPE_STATEMENT_WHILE, 
+NODE_TYPE_STATEMENT_DO_WHILE,
+NODE_TYPE_STATEMENT_FOR, 
+NODE_TYPE_STATEMENT_BREAK, 
+NODE_TYPE_STATEMENT_CONTINUE, 
+NODE_TYPE_STATEMENT_SWITCH,
+NODE_TYPE_STATEMENT_CASE,
+NODE_TYPE_STATEMENT_DEFAULT,
+NODE_TYPE_STATEMENT_GOTO ,
+NODE_TYPE_UNARY ,
+NODE_TYPE_TENARY ,
+NODE_TYPE_LABEL ,
+NODE_TYPE_STRUCT,
+NODE_TYPE_UNION ,
+NODE_TYPE_BRACKET, 
+NODE_TYPE_CAST ,
+NODE_TYPE_BLANK,
+
+};
+
+enum{,
+    PARSE_ALL_OK, 
+    PARSE_GENERAL_ERROR
+ };
+
+// Cada nó uma parte do inputfile.
+struct node {
+    int type;
+    int flags;
+    struct pos pos;
+
+    struct node_binded {
+        // Ponteiro para o body node.
+        struct node* owner;
+        // Ponteiro para a funcao que o no esta.
+        struct node* funtion;
+    }binded;
+
+    // Estrutura similar ao token
+    union {
+        char cval;
+        const char *sval; unsigned int inum;
+        unsigned long lnum;
+        unsigned long long linum;
+        void* any;
+    };
+
 struct compile_process {
     // Como o arquivo deve ser compilado
     int flags;
@@ -143,6 +203,21 @@ struct lex_process {
     struct lex_process_functions* function;
 
     void* private; //Dados privados que o lexer nao entende mas o programador entende
+};
+
+struct compile_process {
+    // Como o arquivo deve ser compilado
+    int flags;
+
+    /* LAB2: Adicionar*/ struct pos pos;
+    struct compile_process_input_filef{
+        FILE* fp; 
+        const char* abs_path;
+    } cfile;
+
+    struct vector* token_vec; struct vector* node_vec;  /* LAB3: Vetor de tokens da análise léxica */
+    struct vector* node_tree_vec;                   /* LAB3: Vetor de nodes da análise sintática */
+    FILE* ofile;                                   /* LAB3: Raiz da arvore de analise */
 };
 
 //Funcoes do arquivo cprocess.c

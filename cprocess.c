@@ -1,4 +1,6 @@
 #include "compiler.h"
+#include "helpers/vector.h"   /* LAB3: Incluir */
+
 
 struct compile_process* compile_process_create(const char* filename, const char* filename_out, int flags){
     FILE *file = fopen(filename, "r");
@@ -17,10 +19,13 @@ struct compile_process* compile_process_create(const char* filename, const char*
     }
     
     struct compile_process* process = calloc(1, sizeof(struct compile_process));
+    process->node_vec = vector_create(sizeof(struct node*));             /* LAB3: Inicializando o vetor */
+    process->node_tree_vec = vector_create(sizeof (struct node*));      /* LAB3: Inicializando o vetor */
     process->flags = flags;
-    process->cfile.fp = file;
+    process->cfile.fp = file; 
     process->ofile = out_file;
 
+    
     return process;
 }
 

@@ -34,13 +34,16 @@ int compile_file(const char* filename, const char* out_filename, int flags){
     }
 
     // AQUI ENTRA ANALISE LÉXICA
-    struct lex_process* lex_process = lex_process_create(process,&compiler_lex_functions,NULL);
+    struct lex_process* lex_process = lex_process_create(process, &compiler_lex_functions, NULL);
 
     if (!lex_process) return COMPILER_FAILED_WITH_ERRORS;
 
     if (lex(lex_process) != LEXICAL_ANALYSIS_ALL_OK) return COMPILER_FAILED_WITH_ERRORS;
 
+    process->token_vec = lex_process->token_vec;                            /* LAB3: Adicionar*/
+
     // AQUI ENTRA O PARSING DO CÓDIGO
+    if (parse(process) != PARSE_ALL_OK) return COMPILER_FAILED_WITH_ERRORS;  /*LAB3: Adicionar*/
 
     // AQUI ENTRA A GERAÇÃO DE CÓDIGO
 
