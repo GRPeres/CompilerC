@@ -413,6 +413,10 @@ void print_token_list(struct lex_process *process){
 struct token* read_next_token(){
     struct token* token = NULL;
     char c = peekc();
+
+    token = handle_comment();
+    if (token){return token;}
+    
     //printf("Character: %c (ASCII: %d)\n", c, c);
     switch (c)
     {
