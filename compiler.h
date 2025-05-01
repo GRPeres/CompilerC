@@ -107,7 +107,7 @@ NODE_TYPE_BLANK,
 
 };
 
-enum{,
+enum{
     PARSE_ALL_OK, 
     PARSE_GENERAL_ERROR
  };
@@ -128,11 +128,13 @@ struct node {
     // Estrutura similar ao token
     union {
         char cval;
-        const char *sval; unsigned int inum;
+        const char *sval; 
+        unsigned int inum;
         unsigned long lnum;
         unsigned long long linum;
         void* any;
     };
+};
 
 struct compile_process {
     // Como o arquivo deve ser compilado
@@ -145,6 +147,9 @@ struct compile_process {
         const char* abs_path;
     } cfile;
 
+    struct vector* token_vec;
+    struct vector* node_vec;
+    struct vector* node_tree_vec;
     FILE* ofile;
 };
 
@@ -203,21 +208,6 @@ struct lex_process {
     struct lex_process_functions* function;
 
     void* private; //Dados privados que o lexer nao entende mas o programador entende
-};
-
-struct compile_process {
-    // Como o arquivo deve ser compilado
-    int flags;
-
-    /* LAB2: Adicionar*/ struct pos pos;
-    struct compile_process_input_filef{
-        FILE* fp; 
-        const char* abs_path;
-    } cfile;
-
-    struct vector* token_vec; struct vector* node_vec;  /* LAB3: Vetor de tokens da análise léxica */
-    struct vector* node_tree_vec;                   /* LAB3: Vetor de nodes da análise sintática */
-    FILE* ofile;                                   /* LAB3: Raiz da arvore de analise */
 };
 
 //Funcoes do arquivo cprocess.c

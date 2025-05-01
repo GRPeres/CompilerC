@@ -17,7 +17,7 @@ void node_push(struct node* node) {
 
 // Pega o node da parte de tras do vetor. Se nao tiver nada, retorna NULL.
 struct node* node_peek_or_null() {
-    return vector_back_ptr_or_nutl(node_vector);
+    return vector_back_ptr_or_null(node_vector);
 }
 
 struct node* node_peek() {
