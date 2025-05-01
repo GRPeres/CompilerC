@@ -54,6 +54,11 @@ struct token* read_next_token();
 static struct lex_process* lex_process;
 static struct token tmp_token;
 
+
+//tirar isso um dia
+struct lex_process* processGlobal;
+
+
 //Pegar um caracter do arquivo, sem mudar a posicao de leitura.
 static char peekc(){
     return lex_process->function->peek_char(lex_process);
@@ -297,13 +302,46 @@ char* read_op() {
     return result;
 }
 
+static const char* read_until(char end_char) {
+    struct buffer* buf = buffer_create();
+    char c;
+    while ((c = nextc()) != end_char && c != EOF) {
+        buffer_write(buf, c);
+    }
+    if (c == EOF) {
+        buffer_free(buf);
+        return NULL;
+    }
+    return buffer_ptr(buf);
+}
+
+static struct token* last_non_whitespace_token(struct lex_process* process) {
+    struct token* last = NULL;
+    size_t i = vector_count(process->token_vec);
+    
+    while (i-- > 0) {
+        last = vector_back(process->token_vec);
+        if (last->type != TOKEN_TYPE_NEWLINE) {
+            return last;
+        }
+        vector_pop(process->token_vec); // Temporarily remove to check previous
+    }
+    return NULL; // No meaningful token found
+}
+
 static struct token *token_make_operator_or_string(){
     char op = peekc();
     // tratar o caso do #include <abc.h>
     if (op == '<') {
-        struct token* last_token = lexer_last_token();
-        if (token_is_keyword(last_token, "include")) {
-            return token_make_string('<', '>');
+        struct token* last_meaningful = last_non_whitespace_token(processGlobal);
+
+        if (last_meaningful && token_is_keyword(last_meaningful, "include")) {
+            nextc(); 
+            const char* filename = read_until('>');
+            return token_create(&(struct token){
+                .type = TOKEN_TYPE_STRING,
+                .sval = filename
+            });
         }
     }
 
@@ -469,6 +507,7 @@ int lex(struct lex_process* process){
     while (token)
     {
         vector_push(process->token_vec,token);
+        processGlobal = process;
         token = read_next_token();
     }
     print_token_list(process);
