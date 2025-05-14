@@ -257,7 +257,7 @@ struct token* token_make_symbol(){
 }
 
 
-int token_is_keyword(struct token* token, const char* keyword) {
+int token_is_keyword_local(struct token* token, const char* keyword) {
     return strcmp(token -> sval, keyword) == 0;
 }
 
@@ -335,7 +335,7 @@ static struct token *token_make_operator_or_string(){
     if (op == '<') {
         struct token* last_meaningful = last_non_whitespace_token(processGlobal);
 
-        if (last_meaningful && token_is_keyword(last_meaningful, "include")) {
+        if (last_meaningful && token_is_keyword_local(last_meaningful, "include")) {
             nextc(); 
             const char* filename = read_until('>');
             return token_create(&(struct token){
@@ -345,7 +345,7 @@ static struct token *token_make_operator_or_string(){
         }
     }
 
-    struct token* token = token_create(&(struct token){.type = TOKEN_TYPE_STRING,.sval=read_op()});
+    struct token* token = token_create(&(struct token){.type = TOKEN_TYPE_OPERATOR,.sval=read_op()});
     if (op == '(') {
         lex_new_expression();
     }
