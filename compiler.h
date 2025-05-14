@@ -1,6 +1,8 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
+#define S_EQ(a, b) (strcmp((a), (b)) == 0)
+
 #define NUMERIC_CASE \
     case '0':\
     case '1':\
@@ -256,3 +258,14 @@ struct node* node_peek_expressionable_or_null();
 bool node_is_expressionable(struct node* node);
 void make_exp_node(struct node* node_left, struct node* node_right, const char* op);
 struct node* node_create(struct node* _node);
+
+#define TOTAL_OPERADOR_GROUPS 14
+#define MAX_OPERATORS_IN_GROUP 12
+
+enum { ASSOCIATIVITY_LEFT_TO_RIGTH,
+    ASSOCIATIVITY_RIGHT_TO_LEFT
+};
+struct expressionable_op_precedence_group {
+    char* operators[MAX_OPERATORS_IN_GROUP];
+    int associativity;
+};

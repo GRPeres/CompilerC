@@ -6,8 +6,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#define S_EQ(a, b) (strcmp((a), (b)) == 0)
-
 bool is_keyword(const char* str) {
     return S_EQ(str, "unsigned") ||
            S_EQ(str, "signed") ||
