@@ -116,7 +116,8 @@ enum{
  };
 
 // Cada nó uma parte do inputfile.
-struct node {int type;
+struct node {
+    int type;
     int flags;
     struct pos pos;
     struct node_binded {

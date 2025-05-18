@@ -397,6 +397,7 @@ int vector_insert(struct vector *vector_dst, struct vector *vector_src, int dst_
 void vector_pop(struct vector *vector)
 {
 
+    if (vector->count == 0) return;
     // Popping from the vector will just decrement the index, no need to free memory
     // the next push will overwrite it.
     vector->rindex -= 1;

@@ -44,7 +44,7 @@ int compile_file(const char* filename, const char* out_filename, int flags){
     process->token_vec = lex_process->token_vec;                            /* LAB3: Adicionar*/
 
     // AQUI ENTRA O PARSING DO CÓDIGO
-    // if (parse(process) != PARSE_ALL_OK) return COMPILER_FAILED_WITH_ERRORS;  /*LAB3: Adicionar*/
+    if (parse(process) != PARSE_ALL_OK) return COMPILER_FAILED_WITH_ERRORS;  /*LAB3: Adicionar*/
 
     // AQUI ENTRA A GERAÇÃO DE CÓDIGO
 
