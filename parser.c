@@ -302,7 +302,7 @@ int parse(struct compile_process* process) {
         //     break;
         // }
 
-        vector_push(process->node_tree_vec, node);
+        vector_push(process->node_tree_vec, &node);
 
         print_node_tree(node, 0,true);
         printf("\n\n");
