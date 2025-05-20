@@ -4,18 +4,6 @@
 #include <string.h>
 #include <assert.h> // LAB4
 
-const char* node_type_to_str(int type) {
-    switch (type) {
-        case NODE_TYPE_EXPRESSION: return "EXPRESSION";
-        case NODE_TYPE_UNARY: return "UNARY";
-        case NODE_TYPE_NUMBER: return "NUMBER";
-        case NODE_TYPE_IDENTIFIER: return "IDENTIFIER";
-        case NODE_TYPE_STRING: return "STRING";
-        case NODE_TYPE_EXPRESSION_PARENTHESES: return "PAREN_EXPR";
-        default: return "UNKNOWN";
-    }
-}
-
 static struct compile_process* current_process;
 static struct token* parser_last_token;
 
@@ -190,73 +178,62 @@ int parse_next(){
     return 0;
 }
 
-void print_indent(int level) {
-    for (int i = 0; i < level; ++i) {
-        printf("  ");
-    }
-}
-
-void print_node(struct node* node, int indent) {
+void print_node_type(struct node* node) {
     if (!node) {
-        print_indent(indent);
-        printf("null\n");
+        printf("NULL");
         return;
     }
 
-    print_indent(indent);
-    printf("{\n");
-
-    print_indent(indent + 1);
-    printf("\"type\": \"%s\",\n", node_type_to_str(node->type));
-
-    print_indent(indent + 1);
-    printf("\"flags\": %d,\n", node->flags);
-
-    print_indent(indent + 1);
-    printf("\"pos\": { \"line\": %d, \"col\": %d },\n", node->pos.line, node->pos.col);
-
     switch (node->type) {
         case NODE_TYPE_NUMBER:
-            print_indent(indent + 1);
-            printf("\"value\": %u\n", node->inum);
+            printf("NUMBER (%u)", node->inum);
             break;
-
         case NODE_TYPE_IDENTIFIER:
-            print_indent(indent + 1);
-            printf("\"name\": \"%s\"\n", node->sval ? node->sval : "null");
+            printf("IDENTIFIER (%s)", node->sval ? node->sval : "null");
             break;
-
         case NODE_TYPE_STRING:
-            print_indent(indent + 1);
-            printf("\"string\": \"%s\"\n", node->sval ? node->sval : "null");
+            printf("STRING (\"%s\")", node->sval ? node->sval : "null");
             break;
-
         case NODE_TYPE_EXPRESSION:
-        case NODE_TYPE_UNARY:
-        case NODE_TYPE_EXPRESSION_PARENTHESES:
-            print_indent(indent + 1);
-            printf("\"operator\": \"%s\",\n", node->exp.op ? node->exp.op : "null");
-
-            print_indent(indent + 1);
-            printf("\"left\": ");
-            print_node(node->exp.left, indent + 2);
-            printf(",\n");
-
-            print_indent(indent + 1);
-            printf("\"right\": ");
-            print_node(node->exp.right, indent + 2);
-            printf("\n");
+            printf("EXPRESSION (op: %s)", node->exp.op ? node->exp.op : "null");
             break;
-
+        case NODE_TYPE_UNARY:
+            printf("UNARY (op: %s)", node->exp.op ? node->exp.op : "null");
+            break;
+        case NODE_TYPE_EXPRESSION_PARENTHESES:
+            printf("PAREN_EXPR");
+            break;
         default:
-            print_indent(indent + 1);
-            printf("\"data\": \"Unhandled node type\"\n");
+            printf("UNKNOWN (type %d)", node->type);
             break;
     }
-
-    print_indent(indent);
-    printf("}");
 }
+
+void print_node_tree(struct node* node, int indent, bool is_last) {
+    if (!node) {
+        for (int i = 0; i < indent; ++i) {
+            printf("│   ");
+        }
+        printf("%sNULL\n", is_last ? "└── " : "├── ");
+        return;
+    }
+
+    for (int i = 0; i < indent; ++i) {
+        printf("│   ");
+    }
+
+    printf("%s", is_last ? "└── " : "├── ");
+    print_node_type(node);
+    printf("\n");
+
+    if (node->type == NODE_TYPE_EXPRESSION ||
+        node->type == NODE_TYPE_UNARY ||
+        node->type == NODE_TYPE_EXPRESSION_PARENTHESES) {
+        print_node_tree(node->exp.left, indent + 1, false);
+        print_node_tree(node->exp.right, indent + 1, true);
+    }
+}
+
 
 int parse(struct compile_process* process) {
     if (!process || !process->node_tree_vec || !process->token_vec || !process->node_vec) {
@@ -271,6 +248,8 @@ int parse(struct compile_process* process) {
 
     struct node* node = node_peek();
 
+    printf("\n Arvore Nodes \n");
+
     while (parse_next() == 0) {
         node = node_peek();
 
@@ -282,7 +261,7 @@ int parse(struct compile_process* process) {
         vector_push(process->node_tree_vec, node);
 
         // 🎉 Print node as JSON
-        print_node(node, 0);
+        print_node_tree(node, 0,true);
         printf("\n\n");
     }
 
