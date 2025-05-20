@@ -4,6 +4,18 @@
 #include <string.h>
 #include <assert.h> // LAB4
 
+const char* node_type_to_str(int type) {
+    switch (type) {
+        case NODE_TYPE_EXPRESSION: return "EXPRESSION";
+        case NODE_TYPE_UNARY: return "UNARY";
+        case NODE_TYPE_NUMBER: return "NUMBER";
+        case NODE_TYPE_IDENTIFIER: return "IDENTIFIER";
+        case NODE_TYPE_STRING: return "STRING";
+        case NODE_TYPE_EXPRESSION_PARENTHESES: return "PAREN_EXPR";
+        default: return "UNKNOWN";
+    }
+}
+
 static struct compile_process* current_process;
 static struct token* parser_last_token;
 
@@ -129,7 +141,7 @@ void parse_exp_normal(struct history* history) {
     // Cria o node de expressao, passando o node da esquerda, node da direita e operador.
     make_exp_node(node_left, node_right, op);
     struct node* exp_node = node_pop();
-    
+
     parser_reorder_expression(&exp_node);
     node_push(exp_node);
 }
@@ -157,7 +169,7 @@ int parse_expressionable_single(struct history* history) {
         }
         return res;
 }
-    
+
 void parse_expressionable(struct history* history){
     while (parse_expressionable_single(history) == 0) {}
 }
@@ -178,41 +190,71 @@ int parse_next(){
     return 0;
 }
 
-void print_node(struct node* node) {
+void print_indent(int level) {
+    for (int i = 0; i < level; ++i) {
+        printf("  ");
+    }
+}
+
+void print_node(struct node* node, int indent) {
     if (!node) {
-        printf("null");
+        print_indent(indent);
+        printf("null\n");
         return;
     }
 
-    printf("{");
-    printf("\"type\":%d,", node->type);
+    print_indent(indent);
+    printf("{\n");
 
-    if (node->type == NODE_TYPE_EXPRESSION) {
-        printf("\"op\":\"%s\",", node->exp.op);
+    print_indent(indent + 1);
+    printf("\"type\": \"%s\",\n", node_type_to_str(node->type));
 
-        // Ensure left and right nodes are not NULL before printing them
-        printf("\"left\":");
-        if (node->exp.left) {
-            print_node(node->exp.left);  // Recursively print left node
-        } else {
-            printf("null");  // Print null for empty left node
-        }
+    print_indent(indent + 1);
+    printf("\"flags\": %d,\n", node->flags);
 
-        printf(",\"right\":");
-        if (node->exp.right) {
-            print_node(node->exp.right);  // Recursively print right node
-        } else {
-            printf("null");  // Print null for empty right node
-        }
-    } else {
-        // Check if sval is NULL before printing
-        if (node->sval) {
-            printf("\"value\":\"%s\"", node->sval);
-        } else {
-            printf("\"value\":\"NULL\"");  // Handle case where sval is NULL
-        }
+    print_indent(indent + 1);
+    printf("\"pos\": { \"line\": %d, \"col\": %d },\n", node->pos.line, node->pos.col);
+
+    switch (node->type) {
+        case NODE_TYPE_NUMBER:
+            print_indent(indent + 1);
+            printf("\"value\": %u\n", node->inum);
+            break;
+
+        case NODE_TYPE_IDENTIFIER:
+            print_indent(indent + 1);
+            printf("\"name\": \"%s\"\n", node->sval ? node->sval : "null");
+            break;
+
+        case NODE_TYPE_STRING:
+            print_indent(indent + 1);
+            printf("\"string\": \"%s\"\n", node->sval ? node->sval : "null");
+            break;
+
+        case NODE_TYPE_EXPRESSION:
+        case NODE_TYPE_UNARY:
+        case NODE_TYPE_EXPRESSION_PARENTHESES:
+            print_indent(indent + 1);
+            printf("\"operator\": \"%s\",\n", node->exp.op ? node->exp.op : "null");
+
+            print_indent(indent + 1);
+            printf("\"left\": ");
+            print_node(node->exp.left, indent + 2);
+            printf(",\n");
+
+            print_indent(indent + 1);
+            printf("\"right\": ");
+            print_node(node->exp.right, indent + 2);
+            printf("\n");
+            break;
+
+        default:
+            print_indent(indent + 1);
+            printf("\"data\": \"Unhandled node type\"\n");
+            break;
     }
 
+    print_indent(indent);
     printf("}");
 }
 
@@ -227,18 +269,21 @@ int parse(struct compile_process* process) {
     node_set_vector(process->node_vec, process->node_tree_vec);
     vector_set_peek_pointer(process->token_vec, 0);
 
+    struct node* node = node_peek();
+
     while (parse_next() == 0) {
-        struct node* node = node_peek();
+        node = node_peek();
+
         if (!node) {
-            printf("Warning: Got NULL node from node_peek()\n");
-            continue;
+            printf("Warning: node_peek() returned NULL\n");
+            break;
         }
 
-        printf("  Node content: ");
-        print_node(node);
-        printf(",\n");
-        
         vector_push(process->node_tree_vec, node);
+
+        // 🎉 Print node as JSON
+        print_node(node, 0);
+        printf("\n\n");
     }
 
     return PARSE_ALL_OK;

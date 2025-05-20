@@ -23,16 +23,27 @@ struct node* node_peek_or_null() {
 }
 
 struct node* node_peek() {
+    if (vector_empty(node_vector))
+    {
+        return NULL;
+    }
     return *(struct node**) (vector_back(node_vector));
 }
 
 struct node* node_pop() {
+
+    if (vector_empty(node_vector))
+    {
+        return NULL;
+    }
+    
     struct node* last_node = vector_back_ptr(node_vector);
+    
     struct node* last_node_root = vector_empty(node_vector) ? NULL : vector_back_ptr_or_null(node_vector_root);
 
     vector_pop(node_vector);
 
-    if (last_node == last_node_root) vector_pop(node_vector_root);
+    if (last_node == last_node_root && !vector_empty(node_vector_root)) vector_pop(node_vector_root);
 
     return last_node;
 }
