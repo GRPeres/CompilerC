@@ -4,6 +4,7 @@ DEBUG ?= 0
 # Object files
 OBJECTS= ./build/compiler.o ./build/cprocess.o ./build/lexer.o ./build/token.o \
          ./build/lex_process.o ./build/parser.o ./build/node.o ./build/expressionable.o \
+		 ./build/scope.o ./build/symresolver.o \
          ./build/helpers/buffer.o ./build/helpers/vector.o
 
 # Include directories
@@ -40,6 +41,12 @@ all: ${OBJECTS}
 
 ./build/expressionable.o: ./expressionable.c
 	gcc ./expressionable.c ${INCLUDES} $(CFLAGS) -o ./build/expressionable.o -c
+
+./build/scope.o: ./scope.c
+	gcc ./scope.c ${INCLUDES} $(CFLAGS) -o ./build/scope.o -c
+
+./build/symresolver.o: ./symresolver.c
+	gcc ./symresolver.c ${INCLUDES} $(CFLAGS) -o ./build/symresolver.o -c
 
 ./build/helpers/buffer.o: ./helpers/buffer.c
 	gcc ./helpers/buffer.c ${INCLUDES} $(CFLAGS) -o ./build/helpers/buffer.o -c
