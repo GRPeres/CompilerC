@@ -154,6 +154,14 @@ struct node
             struct node *right;
             const char *op;
         } exp;
+        struct var {
+                    struct datatype type;
+                    const char* name;
+                    struct node* val;
+        } var;
+        struct varlist {// Lista de variaveisstruct node*
+                        struct vector* list;
+        } var_list;
     };
 };
 
@@ -269,6 +277,8 @@ int parse(struct compile_process *process);
 bool token_is_keyword(struct token *token, const char *value);
 bool token_is_symbol(struct token *token, const char value);
 bool discart_token(struct token *token);
+bool token_is_operator(struct token* token, const char* val);
+
 
 /* FUNCOES DO ARQUIVO NODE.C */
 void node_set_vector(struct vector *vec, struct vector *root_vec);
