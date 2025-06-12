@@ -121,6 +121,26 @@ enum
     PARSE_GENERAL_ERROR
 };
 
+
+struct datatype
+{
+    int flags;
+    // EX: long, int, float, etc.
+    int type;
+    const char *type_str;
+    // EX: long int, sendo int o secundário.
+    struct datatype *datatype_secondary;
+    // Tamanho do datatype. EX: long tem 8 bytes.
+    size_t size;
+    // Quantidades de ponteiros alinhados. Ex: int** a, pointer_depth == 2.
+    int pointer_depth;
+    union
+    {
+        struct node *struct_node;
+        struct node *union_node;
+    };
+};
+
 // Cada nó uma parte do inputfile.
 struct node
 {
@@ -339,25 +359,6 @@ enum
     DATATYPE_EXPECT_PRIMITIVE,
     DATATYPE_EXPECT_UNION,
     DATATYPE_EXPECT_STRUCT
-};
-
-struct datatype
-{
-    int flags;
-    // EX: long, int, float, etc.
-    int type;
-    const char *type_str;
-    // EX: long int, sendo int o secundário.
-    struct datatype *datatype_secondary;
-    // Tamanho do datatype. EX: long tem 8 bytes.
-    size_t size;
-    // Quantidades de ponteiros alinhados. Ex: int** a, pointer_depth == 2.
-    int pointer_depth;
-    union
-    {
-        struct node *struct_node;
-        struct node *union_node;
-    };
 };
 
 enum

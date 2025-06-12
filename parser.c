@@ -37,6 +37,7 @@ void parse_datatype_modifiers(struct datatype *dtype);
 void parse_datatype(struct datatype *dtype);
 void parse_variable_function_or_struct_union(struct history *history);
 void parse_keyword(struct history *history);
+void parse_variable(struct datatype *dtype, struct token *name_token, struct history *history);
 
 static bool parser_left_op_has_priority(const char *op_left, const char *op_right);    // LAB4
 extern struct expressionable_op_precedence_group op_precedence[TOTAL_OPERADOR_GROUPS]; // LAB4
@@ -743,10 +744,11 @@ void parse_variable_function_or_struct_union(struct history *history)
     struct datatype dtype;
     parse_datatype(&dtype);
 
-    struct token* name_token = token_next();
-    if (name_token->type != TOKEN_TYPE_IDENTIFIER) {
-                compiler_error(current_process, "Variavel declarada sem nome!\n");
-}
+    struct token *name_token = token_next();
+    if (name_token->type != TOKEN_TYPE_IDENTIFIER)
+    {
+        compiler_error(current_process, "Variavel declarada sem nome!\n");
+    }
     // TODO: Verificar se eh uma declaracao de funcao. Ex: "int a()"".
     parse_variable(&dtype, name_token, history);
 }
@@ -760,38 +762,69 @@ void parse_keyword(struct history *history)
         return;
     }
 }
-static bool token_next_is_operator(const char* op) { // LAB5 - Parte 2
-struct token* token = token_peek_next();
-return token_is_operator(token, op);
+static bool token_next_is_operator(const char *op)
+{ // LAB5 - Parte 2
+    struct token *token = token_peek_next();
+    return token_is_operator(token, op);
 }
 
-void parse_expressionable_root(struct history* history) { // LAB 5 - Parte 2
-        parse_expressionable(history);
-        struct node* result_node = node_pop();
-        node_push(result_node);
+void parse_expressionable_root(struct history *history)
+{ // LAB 5 - Parte 2
+    parse_expressionable(history);
+    struct node *result_node = node_pop();
+    node_push(result_node);
 }
-void parse_variable(struct datatype* dtype, struct token* name_token, struct history* history) { // LAB5 - Parte 2
-            // TODO: Lidar a com a declaracao de vetores. Ex: int a[10].
-            struct node* value_node = NULL;
-            if (token_next_is_operator("=")) {
-                     // Ignore o "=".
-                    token_next();
-                    parse_expressionable_root(history);
-                    value_node = node_pop();
+
+void make_variable_node(struct datatype *dtype, struct token *name_token, struct node *value_node)
+{ // LAB5 - Parte 2
+    const char *name_str = NULL;
+    if (name_token)
+        name_str = name_token->sval;
+    node_create(&(struct node){.type = NODE_TYPE_VARIABLE, .var.name = name_str, .var.type = *dtype, .var.val = value_node});
 }
-            make_variable_node_and_register(history, dtype, name_token, value_node);
-            // INPLEMENTAR O CASO DE MÚLTIPLAS VARIÁVEIS DECLARADAS NA MESMA LINHA: EX: int a, b, c, d;
+
+void make_variable_node_and_register(struct history *history, struct datatype *dtype, struct token *name_token, struct node *value_node)
+{
+    // LAB5 - Parte 2
+    make_variable_node(dtype, name_token, value_node);
+    struct node *var_node = node_pop();
+    // 1 - Calcular o escopo offset
+    // 2 - Adicionar a variavel no escopo correto
+    node_push(var_node);
 }
-void make_variable_node_and_register(struct history* history, struct datatype* dtype, struct token* name_token, struct node* value_node) { // LAB5 - Parte
-2
-        make_variable_node(dtype, name_token, value_node);
-        struct node* var_node = node_pop();
-        // 1 - Calcular o escopo offset
-        // 2 - Adicionar a variavel no escopo correto
-        node_push(var_node);
+
+static void expected_sym(char c)
+{
+    struct token *next_token = token_next();
+
+    if (!next_token || next_token -> type != TOKEN_TYPE_SYMBOL || next_token->cval != c)
+    {
+        compiler_error(current_process, "Erro!");
+    }
 }
-void make_variable_node(struct datatype* dtype, struct token* name_token, struct node* value_node) { // LAB5 - Parte 2
-        const char* name_str = NULL;
-        if (name_token) name_str = name_token->sval;
-        node_create(&(struct node){.type = NODE_TYPE_VARIABLE, .var.name = name_str, .var.type = *dtype, .var.val = value_node});
+
+void parse_variable(struct datatype *dtype, struct token *name_token, struct history *history)
+{ 
+    // LAB5 - Parte 2
+    // TODO: Lidar a com a declaracao de vetores. Ex: int a[10].
+    struct node *value_node = NULL;
+    if (token_next_is_operator("="))
+    {
+        // Ignore o "=".
+        token_next();
+        parse_expressionable_root(history);
+        value_node = node_pop();
+    }
+    make_variable_node_and_register(history, dtype, name_token, value_node);
+
+    // INPLEMENTAR O CASO DE MÚLTIPLAS VARIÁVEIS DECLARADAS NA MESMA LINHA: EX: int a, b, c, d;
+    struct vector *var_list = vector_create(sizeof(struct node *));
+    vector_push(var_list, value_node);
+
+    while (token_is_operator(token_peek_next(), ","))
+    {
+        token_next();
+        vector_push(var_list, node_pop());
+    }
+    node_create(&(struct node){.type = NODE_TYPE_VARIABLE_LIST, .var_list = var_list});
 }
