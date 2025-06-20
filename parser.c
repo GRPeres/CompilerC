@@ -1051,106 +1051,6 @@ void make_variable_node(struct datatype* dtype, struct token* name_token, struct
     node_create(&(struct node){.type = NODE_TYPE_VARIABLE, .var.name = name_str, .var.type = *dtype, .var.val = value_node});
 }
 
-<<<<<<< HEAD
-void parse_variable(struct datatype* dtype, struct token* name_token, struct history* history) {
-    // Criar lista de variáveis usando a estrutura varlist
-    struct node var_list_node = {
-        .type = NODE_TYPE_VARIABLE_LIST,
-        .var_list.list = vector_create(sizeof(struct node*))
-    };
-    
-    if (!var_list_node.var_list.list) {
-        compiler_error(current_process, "Falha ao criar lista de variáveis\n");
-        return;
-    }
-    
-   
-    
-    // Adicionar a primeira variável
-    struct node* value_node = NULL;
-    if (token_next_is_operator("=")) {
-        // Ignore o "=".
-        token_next();
-        parse_expressionable_root(history);
-        value_node = node_pop();
-    }
-    
-    // Criar node para a primeira variável
-    make_variable_node(dtype, name_token, value_node);
-    struct node* var_node = node_pop();
-    if (!var_node) {
-        compiler_error(current_process, "Falha ao criar node para variável\n");
-        vector_free(var_list_node.var_list.list);
-        return;
-    }
-    vector_push(var_list_node.var_list.list, &var_node);
-   
-    
-    // Verificar se há mais variáveis (separadas por vírgula)
-    while (token_next_is_operator(",")) {
-        // Ignore a vírgula
-        token_next();
-        
-        // Pega o próximo token que deve ser um identificador
-        struct token* next_name_token = token_next();
-        if (next_name_token->type != TOKEN_TYPE_IDENTIFIER) {
-            compiler_error(current_process, "Esperado identificador após vírgula\n");
-            break;
-        }
-        
-        // Verifica se há inicialização
-        value_node = NULL;
-        if (token_next_is_operator("=")) {
-            token_next();
-            parse_expressionable_root(history);
-            value_node = node_pop();
-        }
-        
-        // Criar node para a variável
-        make_variable_node(dtype, next_name_token, value_node);
-        var_node = node_pop();
-        if (!var_node) {
-            compiler_error(current_process, "Falha ao criar node para variável\n");
-            break;
-        }
-        vector_push(var_list_node.var_list.list, &var_node);
-    
-    }
-    
-    // Verificar se há ponto e vírgula no final
-    struct token* semicolon = token_next();
-    if (!token_is_symbol(semicolon, ';')) {
-        printf("%c", semicolon -> cval);
-        compiler_error(current_process, "Esperado ';' após declaração de variáveis\n");
-        vector_free(var_list_node.var_list.list);
-        return;
-    }
-
-    // Criar o node da lista de variáveis
-    struct node* created_node = node_create(&var_list_node);
-    if (!created_node) {
-        compiler_error(current_process, "Falha ao criar node da lista de variáveis\n");
-        vector_free(var_list_node.var_list.list);
-        return;
-    }
-       
-    // Registrar todas as variáveis no escopo
-    for (int i = 0; i < vector_count(var_list_node.var_list.list); i++) {
-        struct node** var_ptr = vector_at(var_list_node.var_list.list, i);
-        if (!var_ptr || !*var_ptr) continue;
-        
-        // Criar um token temporário com o nome da variável
-        struct token temp_token = {
-            .type = TOKEN_TYPE_IDENTIFIER,
-            .sval = (*var_ptr)->var.name,
-            .pos = (*var_ptr)->pos  // Copiar a posição do node
-        };
-        make_variable_node_and_register(history, dtype, &temp_token, (*var_ptr)->var.val);
-    }
-    
-    // Adicionar o node da lista à pilha
-    node_push(created_node);
-=======
 // Função para processar structs
 void parse_struct(struct history* history) {
     printf("\nProcessando struct:\n");
@@ -1367,5 +1267,4 @@ void parse_if(struct history* history) {
     
     printf("If criado com %d statements\n", vector_count(body_statements));
     node_push(created_if);
->>>>>>> a4ecaaa (Testando codigo do yago, provavelmente quebrado por enquanto)
 }

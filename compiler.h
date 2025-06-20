@@ -383,3 +383,7 @@ struct scope
     // NULL se nao tiver pai.
     struct scope *parent;
 };
+
+struct history {
+    int flags;
+};
