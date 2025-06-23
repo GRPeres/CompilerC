@@ -919,7 +919,7 @@ void parse_variable(struct datatype* dtype, struct token* name_token, struct his
         }
         array_dims[array_dim_count++] = size_token->inum;
         struct token* close_bracket = token_next();
-        if (!token_is_operator(close_bracket, "]")) {
+        if (!token_is_symbol(close_bracket, ']')) {
             compiler_error(current_process, "Esperado ']' após tamanho do array\n");
             break;
         }
